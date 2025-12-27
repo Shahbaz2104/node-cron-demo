@@ -41,7 +41,10 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
 async function fetchAndValidate() {
   const endpoints = [
     "https://jsonplaceholder.typicode.com/users/1",
-    "https://jsonplaceholder.typicode.com/users/2"
+    "https://jsonplaceholder.typicode.com/users/2",
+    "https://jsonplaceholder.typicode.com/users/3",
+    "https://jsonplaceholder.typicode.com/users/invalid" ,// Invalid endpoint to test error handling,
+    "https://jsonplaceholder.typicode.com/users/4"
   ];
 
   for (const url of endpoints) {
