@@ -1,4 +1,3 @@
-P
 
 # Advanced Cron Job with Node.js, Axios & Zod
 
@@ -166,6 +165,3 @@ const endpoints = [
 MIT License © 2025
 
 ---
-
-
-Do you want me to do that?
