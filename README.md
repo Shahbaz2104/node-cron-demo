@@ -1,11 +1,13 @@
 
+---
+
 # Advanced Cron Job with Node.js, Axios & Zod
 
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green)](https://nodejs.org/)
 [![npm](https://img.shields.io/badge/npm-9.x-blue)](https://www.npmjs.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-This repository demonstrates a **robust cron job setup** in Node.js that fetches API data, validates it using Zod, handles retries, and logs results. Perfect for testing scheduled tasks or building backend automation.
+This repository demonstrates a **robust cron job setup** in Node.js that fetches API data, validates it using Zod, handles retries, and **saves results to a JSON file** for persistent logging. Ideal for testing scheduled tasks or backend automation.
 
 ---
 
@@ -16,7 +18,8 @@ This repository demonstrates a **robust cron job setup** in Node.js that fetches
 * ✅ Data validation with **Zod** (supports nested schemas)
 * ✅ Retry mechanism for failed requests
 * ✅ Multiple endpoints support
-* ✅ Console logging and optional file/database logging
+* ✅ Persistent logging to a JSON file (`logs/validated-data.json`)
+* ✅ Console logging of success and errors
 
 ---
 
@@ -38,15 +41,15 @@ npm install
 ### 3. Run the cron job
 
 ```bash
-node advanced-cron.js
+node persistent-cron.js
 ```
 
 You should see output like:
 
 ```
-⏰ Cron job running at 10:02:00 AM
-✅ Validated data: { id: 1, name: 'Leanne Graham', email: 'Sincere@april.biz', ... }
-✅ Validated data: { id: 2, name: 'Ervin Howell', email: 'Shanna@melissa.tv', ... }
+⏰ Cron job running at 10:04:00 AM
+✅ Validated & saved: { id: 1, name: 'Leanne Graham', email: 'Sincere@april.biz', ... }
+✅ Validated & saved: { id: 2, name: 'Ervin Howell', email: 'Shanna@melissa.tv', ... }
 ```
 
 ---
@@ -55,10 +58,11 @@ You should see output like:
 
 ```
 advanced-cron/
-├─ advanced-cron.js      # Main cron job script
-├─ package.json          # Node.js dependencies
-├─ README.md             # This file
-└─ logs/                 # Optional folder for log files
+├─ persistent-cron.js       # Main cron job script
+├─ package.json             # Node.js dependencies
+├─ README.md                # This file
+└─ logs/                    # Folder for persistent JSON logging
+    └─ validated-data.json  # Stores all validated API responses
 ```
 
 ---
@@ -87,7 +91,7 @@ cron.schedule("*/2 * * * *", () => { ... });
 
 ### Zod Validation
 
-* Example schema:
+* Example nested schema:
 
 ```ts
 const AddressSchema = z.object({
@@ -106,20 +110,23 @@ const UserSchema = z.object({
 ```
 
 * Invalid data triggers console errors.
-* Ensures API data is **safe and structured**.
+* Ensures API responses are **safe and structured**.
 
 ---
 
-### Logging to a File
+### JSON File Logging
+
+* Validated data is stored persistently in `logs/validated-data.json`:
 
 ```js
-import fs from "fs";
-
-fs.appendFileSync("logs/cron-log.txt", JSON.stringify(validated) + "\n");
+import fs from "fs-extra";
+const existingData = await fs.readJson("logs/validated-data.json").catch(() => []);
+existingData.push(validated);
+await fs.writeJson("logs/validated-data.json", existingData, { spaces: 2 });
 ```
 
-* Logs each validated record into a text file.
-* Useful for auditing or debugging.
+* Each cron run appends new validated entries.
+* Useful for testing persistent tasks without a database.
 
 ---
 
@@ -132,8 +139,7 @@ const prisma = new PrismaClient();
 await prisma.user.create({ data: validated });
 ```
 
-* You can replace this with **MongoDB, MySQL, or Postgres**.
-* Ideal for real backend cron jobs that store processed data.
+* Replace JSON file logging with any database: MongoDB, Postgres, MySQL, etc.
 
 ---
 
@@ -146,8 +152,8 @@ const endpoints = [
 ];
 ```
 
-* The script fetches and validates each endpoint.
-* Retries up to 3 times for failed requests.
+* The script fetches, validates, and logs each endpoint.
+* Retries up to 3 times on failure.
 
 ---
 
@@ -155,8 +161,8 @@ const endpoints = [
 
 * Change cron schedule
 * Add/remove API endpoints
-* Extend Zod schema for nested data
-* Enable file/database logging
+* Extend Zod schema for nested or complex data
+* Enable file or database logging
 
 ---
 
@@ -165,3 +171,4 @@ const endpoints = [
 MIT License © 2025
 
 ---
+
